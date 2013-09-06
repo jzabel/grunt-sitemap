@@ -12,9 +12,6 @@
       if (!url) {
         grunt.fail.warn(homeErrMess, 3);
       }
-      if (url.slice(-1) !== '/') {
-        url += '/';
-      }
       root = path.normalize(this.data.siteRoot || '.');
       rootWarnMess = 'No "siteRoot" parameter defined. Using current directory.';
       if (root === '.') {
@@ -22,7 +19,14 @@
       }
       changefreq = this.data.changefreq || 'daily';
       priority = (this.data.priority || 0.5).toString();
-      pattern = path.join(root, this.data.pattern || '/**/*.html');
+      if(this.data.pattern instanceof Array) {
+        pattern = [];
+        for (var i = 0; i < this.data.pattern.length; i++){
+          pattern[i] = path.join(root, this.data.pattern[i]);
+        }
+      } else {
+        pattern = path.join(root, this.data.pattern || '/**/*.html');
+      }
       files = grunt.file.expand(pattern);
       files = grunt.util._.map(files, function(file) {
         var fileStat, mtime, rawUrlPath, urlPath;
@@ -39,7 +43,7 @@
       });
       files = grunt.util._.compact(files);
       xmlStr = '<?xml version="1.0" encoding="UTF-8"?>\n';
-      xmlStr += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+      xmlStr += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9/">\n';
       for (_i = 0, _len = files.length; _i < _len; _i++) {
         file = files[_i];
         xmlStr += '<url>\n';
